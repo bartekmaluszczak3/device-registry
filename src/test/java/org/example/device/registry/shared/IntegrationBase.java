@@ -77,9 +77,13 @@ public abstract class IntegrationBase {
     }
 
     protected LocationRequest sampleLocation() {
+        return sampleLocation("address", "name");
+    }
+
+    protected LocationRequest sampleLocation(String address, String name) {
         return LocationRequest.builder()
-                .address("address")
-                .name("name")
+                .address(address)
+                .name(name)
                 .latitude(10.0)
                 .longitude(12.0)
                 .build();

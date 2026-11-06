@@ -12,4 +12,10 @@ public class LocationQueries {
         VALUES (?, ?, ?, ?, ?)
         RETURNING *
         """;
+
+    public static final String SEARCH_SQL = """
+        SELECT *
+        FROM locations
+        WHERE 1 = 1
+        """;
 }

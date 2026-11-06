@@ -11,6 +11,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @Repository
 public class LocationRepositoryPostgres implements LocationRepository {
@@ -43,5 +46,38 @@ public class LocationRepositoryPostgres implements LocationRepository {
                 .orElseThrow(() -> new IllegalStateException(
                         "INSERT did not return the created location"
                 ));
+    }
+
+    @Override
+    public List<Location> search(String name, String address) {
+        log.info("Trying to search locations");
+        StringBuilder sql = new StringBuilder(LocationQueries.SEARCH_SQL);
+
+        List<Object> params = new ArrayList<>();
+
+        if (name != null && !name.isBlank()) {
+            sql.append(" AND LOWER(name) = LOWER(?)");
+            params.add(name.trim());
+        }
+
+        if (address != null && !address.isBlank()) {
+            sql.append(" AND LOWER(address) = LOWER(?)");
+            params.add(address.trim());
+        }
+
+        sql.append(" ORDER BY name ASC");
+        return jdbc.query(
+                        (Connection connection) -> {
+                            PreparedStatement ps = connection.prepareStatement(sql.toString());
+
+                            for (int i = 0; i < params.size(); i++) {
+                                ps.setObject(i + 1, params.get(i));
+                            }
+
+                            return ps;
+                        },
+                        locationMapper
+                ).stream()
+                .toList();
     }
 }
